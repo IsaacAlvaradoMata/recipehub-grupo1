@@ -73,7 +73,7 @@ El MongoDB en producción corre dentro de Docker y **no tiene el puerto expuesto
 Luego creá el archivo `.env` dentro de la carpeta `backend` (no lo subas a GitHub, ya está en el `.gitignore`):
 
 ```
-MONGO_URI=mongodb+srv://tuusuario:tupassword@cluster.mongodb.net/recipehub
+MONGO_URI=tu connection string de MongoDB Atlas aquí
 JWT_SECRET=recipehub_secret_dev_2026
 PORT=4000
 ```
