@@ -1,33 +1,27 @@
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./config/database");
-const authRoutes = require("./routes/auth");
-const recipeRoutes = require("./routes/recipes");
-const commentRoutes = require("./routes/comments");
-
-const app = express();
+const { connectDB } = require("./config/database");
+const app = require("./app");
 const PORT = process.env.PORT || 4000;
 
-// Connect to database
-connectDB();
+const startServer = async () => {
+  try {
+    await connectDB();
+    console.log("MongoDB connected successfully");
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("MongoDB connection error:", error.message);
+    process.exit(1);
+  }
+};
 
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
-});
+if (require.main === module) {
+  startServer();
+}
 
-// Routes (se agregan después)
-app.use("/api/auth", authRoutes);
-app.use("/api/recetas", recipeRoutes);
-app.use("/api", commentRoutes);
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-
-module.exports = app;
+module.exports = {
+  app,
+  startServer,
+};
