@@ -1,13 +1,25 @@
 const mongoose = require("mongoose");
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("MongoDB connection error:", error.message);
-    process.exit(1);
+const connectDB = async (mongoUri = process.env.MONGO_URI) => {
+  await mongoose.connect(mongoUri);
+};
+
+const disconnectDB = async () => {
+  if (mongoose.connection.readyState !== 0) {
+    await mongoose.connection.close();
   }
 };
 
-module.exports = connectDB;
+const clearDB = async () => {
+  const { collections } = mongoose.connection;
+
+  for (const collection of Object.values(collections)) {
+    await collection.deleteMany({});
+  }
+};
+
+module.exports = {
+  connectDB,
+  disconnectDB,
+  clearDB,
+};
