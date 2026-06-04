@@ -8,6 +8,43 @@ const DIFFICULTIES = ['Fácil', 'Media', 'Difícil'];
 
 const emptyIngredient = () => ({ nombre: '', cantidad: '', unidad: '' });
 
+function prepareIngredients(ingredientes) {
+  const normalizedIngredients = ingredientes
+    .map((ing) => ({
+      nombre: ing.nombre.trim(),
+      cantidad: String(ing.cantidad).trim(),
+      unidad: ing.unidad.trim(),
+    }))
+    .filter((ing) => ing.nombre || ing.cantidad || ing.unidad);
+
+  if (normalizedIngredients.length === 0) {
+    return { error: 'Agregá al menos un ingrediente.' };
+  }
+
+  const hasMissingField = normalizedIngredients.some(
+    (ing) => !ing.nombre || !ing.cantidad || !ing.unidad
+  );
+
+  if (hasMissingField) {
+    return { error: 'Cada ingrediente debe tener nombre, cantidad y unidad.' };
+  }
+
+  const hasInvalidQuantity = normalizedIngredients.some(
+    (ing) => Number.isNaN(Number(ing.cantidad)) || Number(ing.cantidad) <= 0
+  );
+
+  if (hasInvalidQuantity) {
+    return { error: 'La cantidad de cada ingrediente debe ser mayor a 0.' };
+  }
+
+  return {
+    value: normalizedIngredients.map((ing) => ({
+      ...ing,
+      cantidad: Number(ing.cantidad),
+    })),
+  };
+}
+
 function NewRecipe() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
@@ -58,6 +95,13 @@ function NewRecipe() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+
+    const preparedIngredients = prepareIngredients(ingredientes);
+    if (preparedIngredients.error) {
+      setError(preparedIngredients.error);
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -65,7 +109,7 @@ function NewRecipe() {
         tiempoMin: Number(form.tiempoMin),
         porciones: Number(form.porciones),
         tags: form.tags ? form.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        ingredientes: ingredientes.filter(ing => ing.nombre.trim()),
+        ingredientes: preparedIngredients.value,
         pasos: pasos.filter(p => p.trim()),
       };
       const { data } = await api.post('/api/recetas', payload);
@@ -161,20 +205,27 @@ function NewRecipe() {
               <button type="button" onClick={addIngredient} className="text-sm font-semibold text-amber-600 hover:text-amber-800 transition">+ Agregar</button>
             </div>
 
-            <div className="flex text-xs font-semibold text-stone-400 px-1 gap-2">
-              <span className="flex-1">Ingrediente</span>
-              <span className="w-24">Cantidad</span>
-              <span className="w-24">Unidad</span>
-              <span className="w-5"></span>
+            <div
+              className="grid items-center gap-2 px-1 text-xs font-semibold text-stone-400"
+              style={{ gridTemplateColumns: 'minmax(0, 1fr) 6rem 6rem 1.25rem' }}
+            >
+              <span>Ingrediente</span>
+              <span>Cantidad</span>
+              <span>Unidad</span>
+              <span></span>
             </div>
 
             <div className="flex flex-col gap-2">
               {ingredientes.map((ing, i) => (
-                <div key={i} className="flex gap-2 items-center">
-                  <input value={ing.nombre} onChange={e => handleIngredientChange(i, 'nombre', e.target.value)} placeholder="ej: Harina" className={`${inputClass} flex-1`} />
-                  <input value={ing.cantidad} onChange={e => handleIngredientChange(i, 'cantidad', e.target.value)} placeholder="2" className={`${inputClass} w-24`} />
-                  <input value={ing.unidad} onChange={e => handleIngredientChange(i, 'unidad', e.target.value)} placeholder="tazas" className={`${inputClass} w-24`} />
-                  <button type="button" onClick={() => removeIngredient(i)} className="text-stone-300 hover:text-red-400 transition text-xl leading-none w-5 shrink-0">×</button>
+                <div
+                  key={i}
+                  className="grid items-center gap-2"
+                  style={{ gridTemplateColumns: 'minmax(0, 1fr) 6rem 6rem 1.25rem' }}
+                >
+                  <input value={ing.nombre} onChange={e => handleIngredientChange(i, 'nombre', e.target.value)} placeholder="ej: Harina" className={`${inputClass} min-w-0`} />
+                  <input value={ing.cantidad} onChange={e => handleIngredientChange(i, 'cantidad', e.target.value)} placeholder="2" className={inputClass} />
+                  <input value={ing.unidad} onChange={e => handleIngredientChange(i, 'unidad', e.target.value)} placeholder="tazas" className={inputClass} />
+                  <button type="button" onClick={() => removeIngredient(i)} className="text-stone-300 hover:text-red-400 transition text-xl leading-none">×</button>
                 </div>
               ))}
             </div>
