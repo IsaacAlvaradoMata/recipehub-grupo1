@@ -18,13 +18,12 @@ function Navbar() {
       <div className="flex items-center gap-4">
         {user ? (
           <>
-            <span className="text-stone-500 text-sm">{user.nombre}</span>
-            <button
-              onClick={handleLogout}
-              className="bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer border-none"
-            >
-              Logout
-            </button>
+            <Link to="/nueva" className="bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors no-underline">
+              + Nueva receta
+            </Link>
+            <Link to="/perfil" className="text-amber-900 font-semibold text-sm no-underline hover:text-amber-600 transition-colors">
+              {user.nombre}
+            </Link>
           </>
         ) : (
           <>
