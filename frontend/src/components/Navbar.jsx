@@ -1,19 +1,13 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 function Navbar() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-
-  function handleLogout() {
-    logout();
-    navigate('/login');
-  }
+  const { user } = useAuth();
 
   return (
     <nav className="bg-white border-b-2 border-amber-400 px-8 h-15 flex items-center justify-between shadow-sm">
       <Link to="/" className="text-amber-900 font-bold text-xl no-underline hover:text-amber-600 transition-colors">
-        RecipeHub
+        RecipeHub🥘
       </Link>
       <div className="flex items-center gap-4">
         {user ? (
