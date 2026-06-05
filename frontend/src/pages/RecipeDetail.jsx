@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 import api from '../services/axiosInstance';
 
 function RecipeDetail() {
@@ -60,6 +61,12 @@ function RecipeDetail() {
 
   return (
     <div className="max-w-3xl mx-auto px-5 py-8">
+      <button
+        onClick={() => navigate('/')}
+        className="flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-900 transition mb-5"
+      >
+        <ArrowLeft size={16} /> Volver
+      </button>
       <h1 className="text-3xl font-bold text-amber-900 mb-2">{recipe.titulo}</h1>
       <p className="text-stone-500 mb-4">{recipe.descripcion}</p>
 

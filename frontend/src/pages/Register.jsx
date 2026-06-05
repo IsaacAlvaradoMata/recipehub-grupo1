@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { ArrowLeft } from 'lucide-react';
 import api from '../services/axiosInstance';
 
 function Register() {
@@ -32,8 +33,14 @@ function Register() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-60px)] flex items-center justify-center px-4 bg-[#FFFBF0]">
+    <div className="min-h-[calc(100vh-60px)] flex items-center justify-center px-4 bg-[#FEF3C7]">
       <div className="bg-white border border-amber-200 rounded-2xl p-10 w-full max-w-md shadow-xl">
+        <button
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-900 transition mb-5"
+        >
+          <ArrowLeft size={16} /> Volver
+        </button>
         <h1 className="text-2xl font-bold text-amber-900 text-center mb-6">Crear cuenta</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <input

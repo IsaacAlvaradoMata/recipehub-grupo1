@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed, ArrowLeft } from 'lucide-react';
 import api from '../services/axiosInstance';
 
 function Profile() {
@@ -46,6 +46,12 @@ function Profile() {
 
   return (
     <div className="max-w-3xl mx-auto px-5 py-10">
+      <button
+        onClick={() => navigate('/')}
+        className="flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-900 transition mb-5"
+      >
+        <ArrowLeft size={16} /> Volver
+      </button>
       <div className="bg-white border border-amber-100 rounded-2xl p-8 shadow-sm flex flex-col items-center gap-5 mb-8">
         {profile.avatarUrl ? (
           <img src={profile.avatarUrl} alt={profile.nombre} className="w-24 h-24 rounded-full object-cover border-2 border-amber-200" />

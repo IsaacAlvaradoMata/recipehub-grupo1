@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UtensilsCrossed } from 'lucide-react';
+import { UtensilsCrossed, ArrowLeft } from 'lucide-react';
 import api from '../services/axiosInstance';
 
 const CATEGORIES = ['Desayuno', 'Almuerzo', 'Cena', 'Postre'];
@@ -126,8 +126,16 @@ function NewRecipe() {
   const sectionTitle = 'text-base font-bold text-amber-900 flex items-center gap-2';
 
   return (
-    <div className="min-h-screen py-10 px-4" style={{ background: '#FFFBF0' }}>
+    <div className="min-h-screen py-10 px-4" style={{ background: '#FEF3C7' }}>
       <div className="max-w-2xl mx-auto">
+
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          className="flex items-center gap-1.5 text-sm font-semibold text-amber-700 hover:text-amber-900 transition mb-5"
+        >
+          <ArrowLeft size={16} /> Volver
+        </button>
 
         <div className="mb-6 flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-amber-500 flex items-center justify-center shadow-sm shrink-0">
