@@ -60,6 +60,27 @@ Aplicación web full-stack para publicar, descubrir y gestionar recetas de cocin
 
 ---
 
+## Flujo de trabajo para cambios en el frontend
+
+El frontend se sirve como archivos estáticos compilados desde `frontend/dist/`. Nginx apunta directamente a esa carpeta. Por eso, **cada vez que se hagan cambios en el frontend, es obligatorio regenerar el build antes de hacer commit**, de lo contrario los cambios no se verán en producción.
+
+El flujo correcto para cualquier cambio en el frontend es:
+
+```bash
+cd frontend
+npm ci
+npm run build
+cd ..
+git add frontend/dist
+git add frontend/src  # o los archivos fuente que cambiaste
+git commit -m "descripción del cambio"
+git push origin tu-rama
+```
+
+> **Si hacés commit sin correr `npm run build` primero, el `dist/` en el repo quedará desactualizado y los cambios no se verán en producción aunque el pipeline pase en verde.**
+
+---
+
 ## Despliegue en VPS paso a paso
 
 ### 1. Conectarse al VPS
@@ -144,7 +165,7 @@ server {
     listen 443 ssl;
     server_name app.recipehubgrupo1.xyz;
 
-    root /var/www/recipehub/dist;
+    root /var/www/recipehub-grupo1/frontend/dist;
     index index.html;
 
     location / {
@@ -172,39 +193,37 @@ Verificar renovación automática:
 sudo certbot renew --dry-run
 ```
 
-### 8. Copiar el build del frontend
+### 8. Verificar el build del frontend
 
-El pipeline de CI/CD copia automáticamente el `dist/` al directorio de Nginx. Para hacerlo manualmente:
+El `dist/` del frontend se incluye directamente en el repositorio y Nginx lo sirve desde `frontend/dist/`. Al clonar el repo y hacer `git pull`, los archivos compilados ya están disponibles sin pasos adicionales.
+
+Para verificar que el frontend está correctamente desplegado:
 
 ```bash
-cd frontend
-npm install
-npm run build
-sudo cp -r dist/ /var/www/recipehub/dist
+curl -I https://app.recipehubgrupo1.xyz
 ```
+
+Debe retornar `200 OK`.
 
 ---
 
 ## Pipeline CI/CD
 
-El archivo `.github/workflows/deploy.yml` define tres jobs que se ejecutan automáticamente en cada push a `main`:
+El archivo `.github/workflows/deploy.yml` define dos jobs que se ejecutan automáticamente en cada push o pull request a `main`:
 
 **Job 1 — `build-and-test`**
 - Hace checkout del código
 - Instala dependencias del backend con `npm ci`
 - Ejecuta `npm test` — los 3 tests con Jest deben pasar
 - Si algún test falla, el pipeline se detiene y no hace deploy
+- Se ejecuta tanto en pull requests como en push a `main`
 
-**Job 2 — `deploy`**
+**Job 2 — `deploy`** *(solo en push a `main`, no en pull requests)*
 - Se ejecuta solo si `build-and-test` pasó (`needs: build-and-test`)
 - Se conecta al VPS por SSH usando el secret `VPS_SSH_KEY`
-- Ejecuta `git pull` en el servidor
+- Ejecuta `git pull origin main` en el servidor — esto descarga el `dist/` actualizado
 - Corre `docker compose up -d --build` para reconstruir y levantar los contenedores
-- Copia el build del frontend al directorio de Nginx
-
-**Job 3 — Health check**
-- Hace `curl` a `https://api.recipehubgrupo1.xyz/api/health`
-- Si no responde con 200, el pipeline falla y el equipo recibe notificación
+- Verifica que `https://api.recipehubgrupo1.xyz/api/health` responde con 200
 
 Los secrets configurados en GitHub Actions son: `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY`, `MONGO_URI`, `JWT_SECRET`.
 
